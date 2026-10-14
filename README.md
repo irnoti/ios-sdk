@@ -3,55 +3,47 @@
 ![iOS 15+](https://img.shields.io/badge/iOS-15%2B-6f42c1.svg)
 ![SwiftPM](https://img.shields.io/badge/SwiftPM-compatible-brightgreen.svg)
 
-<div dir="rtl" align="right">
+The official IRNoti (Iran Notification) SDK for iPhone and iPad apps. Use it to register the device and its push token, receive and display notifications, segment users with Topics, Tags, External ID and Aliases, send behavioral events, and report delivery and click statistics.
 
-SDK رسمی ایران‌ناتیفیکیشن (IRNoti) برای اپلیکیشن‌های آیفون و آیپد است. با آن می‌توانید دستگاه و توکن پوش را ثبت کنید، اعلان را دریافت و نمایش دهید، کاربران را با Topic، Tag، External ID و Alias دسته‌بندی کنید، رویدادهای رفتاری بفرستید و گزارش تحویل و کلیک را ثبت کنید.
+**Current version:** `1.0.0`
 
-**نسخه فعلی:** <code dir="ltr">1.0.0</code>
+## Features
 
-## قابلیت‌ها
+- Automatic FCM token registration and updates
+- Receive notifications in the foreground and background
+- Rich image notifications (via a Notification Service Extension) and action-button click reporting (via `UNNotificationCategory`)
+- Open web links and deep links
+- Topic subscribe and unsubscribe
+- External ID, Aliases and Tags
+- Behavioral events
+- Delivery and click reporting with a persistent queue and retry
+- Apple privacy manifest (`PrivacyInfo.xcprivacy`) bundled with the package
 
-- ثبت و به‌روزرسانی خودکار توکن FCM
-- دریافت اعلان در پیش‌زمینه و پس‌زمینه
-- اعلان تصویری (با Notification Service Extension) و ثبت کلیک دکمه‌های اعلان (با UNNotificationCategory)
-- بازکردن لینک وب و Deep Link
-- عضویت و لغو عضویت در Topic
-- External ID، Alias و Tag
-- رویدادهای رفتاری
-- گزارش تحویل و کلیک با صف ماندگار و تلاش مجدد
-- فایل حریم خصوصی اپل (`PrivacyInfo.xcprivacy`) همراه بسته
+## Requirements
 
-## پیش‌نیازها
-
-1. یک **سازمان** و یک **پروژه** در ایران‌ناتیفیکیشن که سرویس «پوش‌نوتیفیکیشن» برایش فعال است، و یک **اپ** در آن سرویس (با فایل JSON حساب سرویس Firebase). **کلید عمومی** اپ (`pk_live_…`) را از پنل بردارید.
-2. Xcode 15 یا بالاتر و iOS 15 به بالا.
-3. یک پروژه Firebase با اپ iOS (Bundle ID دقیق) و فایل `GoogleService-Info.plist`.
-4. کلید احراز هویت APNs را در Firebase (Project Settings › Cloud Messaging) بارگذاری کنید.
-5. قابلیت **Push Notifications** و **Background Modes › Remote notifications** را در Xcode فعال کنید.
+1. An **organization** and a **project** in IRNoti with the "Push Notification" service enabled, and an **app** in that service (created with your Firebase service-account JSON file). Copy the app's **public key** (`pk_live_…`) from the dashboard.
+2. Xcode 15 or later and iOS 15 or later.
+3. A Firebase project with an iOS app (exact Bundle ID) and its `GoogleService-Info.plist` file.
+4. Upload your APNs authentication key to Firebase (Project Settings › Cloud Messaging).
+5. Enable the **Push Notifications** capability and **Background Modes › Remote notifications** in Xcode.
 
 > [!IMPORTANT]
-> پروژه Firebase اپ و پروژه Firebase‌ای که حساب سرویسش را در ایران‌ناتیفیکیشن ثبت کرده‌اید باید یکی باشند.
+> The Firebase project of your app and the Firebase project whose service account you registered in IRNoti must be the same project.
 
 > [!CAUTION]
-> فقط کلید عمومی را داخل اپ بگذارید. فایل حساب سرویس Firebase، کلید APNs و لینک بروکر محرمانه‌اند و نباید داخل اپ یا Git باشند.
+> Only put the public key inside the app. The Firebase service-account file, the APNs key and the broker link are secret and must never be included in the app or in Git.
 
-## نصب با Swift Package Manager
+## Installation with Swift Package Manager
 
-در Xcode: `File > Add Package Dependencies` و آدرس زیر:
-
-</div>
+In Xcode choose `File > Add Package Dependencies` and enter this URL:
 
 ```text
 https://github.com/irnoti/ios-sdk.git
 ```
 
-<div dir="rtl" align="right">
+Version rule: `Up to Next Major Version` starting from `1.0.0`. Add the `Irnoti` product to your main app target, and add the `IrnotiExtension` product only to the Notification Service Extension. For production builds, don't depend on the `main` branch; use a version tag.
 
-قانون نسخه: `Up to Next Major Version` از `1.0.0`. محصول `Irnoti` را به هدف اصلی اپ و محصول `IrnotiExtension` را فقط به Notification Service Extension اضافه کنید. برای نسخه نهایی به شاخه `main` وابسته نشوید و از تگ نسخه استفاده کنید.
-
-## راه‌اندازی
-
-</div>
+## Setup
 
 ```swift
 import Irnoti
@@ -78,18 +70,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate, UNUser
         Messaging.messaging().apnsToken = deviceToken
     }
 
-    // توکن FCM را به SDK بدهید
+    // Pass the FCM token to the SDK
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         if let token = fcmToken { Irnoti.shared.setPushToken(token) }
     }
 
-    // اعلان در پیش‌زمینه
+    // Notification received while the app is in the foreground
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
         Irnoti.shared.didReceive(userInfo: notification.request.content.userInfo)
         return [.banner, .sound]
     }
 
-    // لمس اعلان یا دکمه
+    // User tapped the notification or one of its buttons
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
         if let url = Irnoti.shared.didTap(response: response) {
             await UIApplication.shared.open(url)
@@ -98,13 +90,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate, UNUser
 }
 ```
 
-<div dir="rtl" align="right">
+## Image notifications (Notification Service Extension)
 
-## اعلان تصویری (Notification Service Extension)
-
-یک هدف از نوع **Notification Service Extension** بسازید، محصول `IrnotiExtension` را به آن اضافه کنید و کلاس آن را این‌طور بنویسید:
-
-</div>
+Create a target of type **Notification Service Extension**, add the `IrnotiExtension` product to it, and write its class like this:
 
 ```swift
 import IrnotiExtension
@@ -112,27 +100,23 @@ import IrnotiExtension
 class NotificationService: IrnotiNotificationService {}
 ```
 
-<div dir="rtl" align="right">
+If you want the extension to report delivery too, and share the installation ID with the app, create an **App Group** and set the following in both targets before calling `configure`: `Irnoti.shared.appGroup = "group.com.yourcompany.app"`.
 
-اگر می‌خواهید اکستنشن هم گزارش تحویل بفرستد و شناسه نصب با اپ مشترک باشد، یک **App Group** بسازید و قبل از `configure` در هر دو هدف بنویسید: `Irnoti.shared.appGroup = "group.com.yourcompany.app"`.
+## Public methods
 
-## متدهای عمومی
-
-| متد | توضیح |
+| Method | Description |
 |---|---|
-| `configure(appKey:apiBase:)` | راه‌اندازی (آدرس پیش‌فرض: `https://api.irnoti.ir/v1/sdk`) |
-| `setPushToken(_:)` | ثبت و به‌روزرسانی توکن FCM |
-| `setNotificationsEnabled(_:)` | اطلاع از وضعیت مجوز اعلان |
-| `identify(_:aliases:)` / `logout()` | اتصال دستگاه به کاربر شما |
-| `subscribe(_:)` / `unsubscribe(_:)` | Topic |
-| `setTags(_:)` | Tag (مقدار `nil` = حذف) |
-| `track(_:props:)` | رویداد |
-| `didReceive(userInfo:)` / `didTap(response:)` | گزارش تحویل و کلیک |
-| `unregister()` | لغو کامل ثبت دستگاه |
+| `configure(appKey:apiBase:)` | Initialize the SDK (default base URL: `https://api.irnoti.ir/v1/sdk`) |
+| `setPushToken(_:)` | Register and update the FCM token |
+| `setNotificationsEnabled(_:)` | Tell the SDK whether the notification permission is granted |
+| `identify(_:aliases:)` / `logout()` | Link the device to your user |
+| `subscribe(_:)` / `unsubscribe(_:)` | Topics |
+| `setTags(_:)` | Tags (`nil` value = remove) |
+| `track(_:props:)` | Events |
+| `didReceive(userInfo:)` / `didTap(response:)` | Delivery and click reporting |
+| `unregister()` | Fully unregister the device |
 
-همه متدها غیرهمزمان‌اند و قبل از ثبت دستگاه هم امن هستند.
-
-</div>
+All methods are asynchronous and safe to call before the device is registered.
 
 ```swift
 Irnoti.shared.identify("user-123", aliases: ["phone": "09120000000"])
@@ -141,45 +125,37 @@ Irnoti.shared.setTags(["plan": "pro", "old": nil])
 Irnoti.shared.track("purchase", props: ["amount": 120000])
 ```
 
-<div dir="rtl" align="right">
+## Message fields
 
-## فیلدهای پیام
-
-| فیلد | توضیح |
+| Field | Description |
 |---|---|
-| `title`, `body` | عنوان و متن |
-| `image` | آدرس `https` تصویر (نیازمند Notification Service Extension) |
-| `url` | لینک وب |
-| `deeplink` | آدرس مطلق با Scheme اپ؛ بر `url` اولویت دارد |
-| `actions` | حداکثر دو دکمه: `[{"id":"open","title":"مشاهده","url":"myapp://orders/5"}]` |
-| `extra` | داده سفارشی |
+| `title`, `body` | Title and body text |
+| `image` | `https` URL of the image (requires the Notification Service Extension) |
+| `url` | Web link |
+| `deeplink` | Absolute URI with your app's scheme; takes priority over `url` |
+| `actions` | Up to two buttons: `[{"id":"open","title":"View","url":"myapp://orders/5"}]` |
+| `extra` | Custom data |
 
-برای دکمه‌ها، دسته‌های `UNNotificationCategory` را در اپ ثبت کنید یا از دسته پیش‌فرض خودتان استفاده کنید؛ SDK شناسه دکمه را در گزارش کلیک می‌فرستد.
+For action buttons, register your `UNNotificationCategory` categories in the app, or use your own default category; the SDK sends the button ID in the click report.
 
-## ارسال اولین اعلان
-
-</div>
+## Sending your first notification
 
 ```bash
 curl -X POST "https://api.irnoti.ir/v1/sdk-apps/APP_ID/send" \
   -H "Authorization: Bearer irn_live_xxx" \
   -H "Content-Type: application/json" \
-  -d '{"message":{"title":"سلام","body":"اولین اعلان"},"target":{"all":true}}'
+  -d '{"message":{"title":"Hello","body":"Your first notification"},"target":{"all":true}}'
 ```
 
-<div dir="rtl" align="right">
+## Troubleshooting
 
-## رفع اشکال
-
-| مشکل | علت و راه‌حل |
+| Problem | Cause and solution |
 |---|---|
-| دستگاه در پنل دیده نمی‌شود | کلید عمومی و اینترنت را بررسی کنید. `setPushToken` باید با توکن FCM صدا زده شود، نه توکن APNs. |
-| ثبت با خطای ۴۰۳ رد می‌شود | سرویس پوش پروژه غیرفعال/منقضی است یا سقف دستگاه بسته پر شده؛ وضعیت را در پنل ببینید. |
-| اعلان نمی‌رسد | کلید APNs در Firebase، Capabilityهای Xcode و یکی‌بودن پروژه Firebase را بررسی کنید. شبیه‌ساز اعلان راه دور نمی‌گیرد؛ دستگاه واقعی لازم است. |
-| تصویر نمایش داده نمی‌شود | Notification Service Extension را اضافه کنید و `mutable-content` فعال باشد (سرور خودکار می‌گذارد). آدرس تصویر باید `https` باشد. |
+| The device does not appear in the dashboard | Check the public key and internet access. `setPushToken` must be called with the FCM token, not the APNs token. |
+| Registration fails with a 403 error | The project's push service is disabled or expired, or the device limit of the plan has been reached. Check the status in the dashboard. |
+| Notifications are not delivered | Check the APNs key in Firebase, the Xcode capabilities, and that the Firebase project is the same one. The simulator can't receive remote notifications; use a real device. |
+| The image is not shown | Add the Notification Service Extension and make sure `mutable-content` is enabled (the server sets it automatically). The image URL must be `https`. |
 
-## مجوز استفاده
+## License
 
-مجوز استفاده را مالک مخزن تعیین می‌کند (فایل `LICENSE`).
-
-</div>
+The license is determined by the repository owner (see the `LICENSE` file).
