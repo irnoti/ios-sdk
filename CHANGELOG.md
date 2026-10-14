@@ -1,4 +1,4 @@
-# تغییرات
+# Changelog
 
 ## 1.0.0
-- نسخهٔ اول: ثبت دستگاه، به‌روزرسانی توکن، Topic، Tag، External ID و Alias، رویداد، گزارش تحویل/کلیک با صف ماندگار، افزونهٔ اعلان تصویری و فایل حریم خصوصی اپل.
+- Initial release: device registration, token updates, Topics, Tags, External ID and Aliases, events, delivery/click reporting with a persistent queue, rich image notification extension and Apple privacy manifest.
